@@ -8,9 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://generativelanguage.googleapis.com">
 <link rel="preconnect" href="https://api.streamelements.com">
-<link rel="preconnect" href="https://js.puter.com">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-<link rel="preconnect" href="https://image.pollinations.ai">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,600;1,600&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -385,12 +383,8 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<!-- Detection de main (pilotage des panneaux sans toucher l ecran).
-     Charge en differe : la bibliotheque est lourde, on ne la telecharge
-     qu au moment ou l utilisateur active reellement le mode gestuel. -->
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
-<script src="https://js.puter.com/v2/"></script>
 </head>
+
 <body>
 <div class="bg"><div class="bg-grad"></div><canvas class="bg-canvas" id="bgc"></canvas></div>
 <div class="bg-grid"></div>
@@ -448,6 +442,11 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
     <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="1.5"><rect x="2" y="5" width="7" height="14" rx="1"/><rect x="9" y="3" width="7" height="18" rx="1" stroke="#f5a623"/><rect x="16" y="5" width="7" height="14" rx="1"/></svg></div>
     <div class="ct2">Story / Carrousel</div>
     <div class="cd">Structure slide par slide pour vos carrousels</div>
+  </div>
+  <div class="card" id="btnAnalyseContenu">
+    <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="1.5"><path d="M3 3v18h18" stroke="#f5a623" stroke-width="1"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+    <div class="ct2">Analyseur de Contenu</div>
+    <div class="cd">Texte ou capture : ce qui bloque la viralite, et comment corriger</div>
   </div>
   <div class="card" id="btnApps">
     <div class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="#f5a623"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="#f5a623"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
@@ -514,6 +513,7 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
     <div style="display:flex;gap:10px;justify-content:center;margin-top:8px">
       <button id="btnVoixMuet" title="Activer/couper la voix" style="background:none;border:1px solid var(--bd);border-radius:16px;padding:5px 12px;color:var(--mu);font-size:10px;font-family:'Orbitron',monospace;letter-spacing:.06em;cursor:pointer">VOIX</button>
       <button id="btnVoixRejouer" title="Rejouer la derniere reponse" style="background:none;border:1px solid var(--bd);border-radius:16px;padding:5px 12px;color:var(--mu);font-size:10px;font-family:'Orbitron',monospace;letter-spacing:.06em;cursor:pointer">&#8635; REJOUER</button>
+      <button id="btnNouvelleConv" title="Recommencer une conversation neuve" style="background:none;border:1px solid var(--bd);border-radius:16px;padding:5px 12px;color:var(--mu);font-size:10px;font-family:'Orbitron',monospace;letter-spacing:.06em;cursor:pointer">+ NOUVELLE CONV.</button>
     </div>
   </div>
   <div class="tsw">
@@ -527,7 +527,7 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
 
 <aside class="rp">
   <div class="plbl">Syst&egrave;me</div>
-  <div class="mcard"><div class="ml">Outils</div><div class="mv" id="mA">17</div>
+  <div class="mcard"><div class="ml">Outils</div><div class="mv" id="mA">18</div>
     <div class="ms">fonctionnalites disponibles</div><div class="mbt"><div class="mbf" id="mAb" style="width:100%"></div></div></div>
   <div class="mcard"><div class="ml">M&eacute;moires</div><div class="mv g" id="mM">0</div>
     <div class="ms">entr&eacute;es stock&eacute;es</div><div class="mbt"><div class="mbf g" id="mMb" style="width:0%"></div></div></div>
@@ -563,14 +563,8 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
 <script>
 (function(){
 "use strict";
-var APIKEY="";
 var LANG="fr-FR";
 
-/* Multi-IA reel : Claude (Anthropic) + GPT-4o (OpenAI) + Gemini (Google).
-   Chaque cle est optionnelle - si vide, ce moteur est simplement exclu
-   du routage et AURIX utilise les moteurs disponibles. Sans aucune cle,
-   repli sur les reponses simulees locales. */
-var OPENAI_API_KEY="";
 /* ROTATION DE CLES GEMINI - chaque clé gratuite Google a son propre
    quota (environ 20 requetes gratuites). En ajoutant plusieurs cles
    ici (une par compte Google gratuit different), AURIX bascule
@@ -759,7 +753,7 @@ function sauverRequetesJour(n){
   }catch(e){ console.error("[AURIX] sauvegarde requetes:",e); }
 }
 
-var t0=Date.now(),hist=[],tstTimer=null;
+var t0=Date.now(),tstTimer=null;
 
 var AI_LINKS=[
   {n:"Claude",vendor:"Anthropic",url:"https://claude.ai",col:"#f5a623",task:"Raisonnement, code, redaction longue"},
@@ -949,6 +943,103 @@ function exporterMemoires(){
     console.error("[AURIX] export memoire:",e);
     toast("Export impossible : "+e.message,"e");
   }
+}
+
+/* SAUVEGARDE COMPLETE
+   Toutes les donnees d AURIX (comptabilite, factures, memoire) ne
+   vivent QUE dans ce navigateur, sur cet appareil - aucune copie
+   ailleurs. Changer de telephone, vider le cache, ou desinstaller le
+   navigateur efface tout, SANS AUCUN MOYEN DE RECUPERATION. Cette
+   fonction reunit tout dans un seul fichier telechargeable, pour que
+   ce risque devienne evitable en un clic plutot qu invisible. */
+function exporterSauvegardeComplete(){
+  try{
+    var donnees={
+      version:1,
+      exporte:new Date().toISOString(),
+      transactions:chargerTransactions(),
+      factures:chargerFactures(),
+      emetteur:chargerEmetteur(),
+      memoires:memories
+    };
+    var blob=new Blob([JSON.stringify(donnees,null,2)],{type:"application/json"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    var horodatage=new Date().toISOString().slice(0,10);
+    a.href=url; a.download="aurix-sauvegarde-"+horodatage+".json";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ a.remove(); URL.revokeObjectURL(url); },1000);
+    localStorage.setItem("aurix_derniere_sauvegarde",new Date().toISOString());
+    toast("Sauvegarde complete telechargee","g");
+  }catch(e){
+    console.error("[AURIX] export sauvegarde complete:",e);
+    toast("Export impossible : "+e.message,"e");
+  }
+}
+
+/* Restauration : REMPLACE les donnees actuelles (pas de fusion), a la
+   difference d importerMemoires. Une fusion automatique de
+   transactions/factures ferait courir un risque reel de double
+   comptage (meme montant compte deux fois) - un remplacement franc,
+   avec avertissement clair avant d agir, est plus sur qu une fusion
+   silencieuse qui pourrait fausser un bilan sans que personne ne le
+   remarque. */
+function importerSauvegardeComplete(fichier){
+  var lecteur=new FileReader();
+  lecteur.onload=function(){
+    try{
+      var donnees=JSON.parse(lecteur.result);
+      if(!donnees||typeof donnees!=="object")throw new Error("Format non reconnu");
+
+      var confirmation=confirm(
+        "Restaurer cette sauvegarde va REMPLACER toutes vos donnees actuelles "+
+        "(comptabilite, factures, memoire) par celles du fichier.\n\n"+
+        "Cette action est irreversible. Continuer ?"
+      );
+      if(!confirmation)return;
+
+      if(Array.isArray(donnees.transactions)){
+        transactions=donnees.transactions;
+        sauverTransactions();
+      }
+      if(Array.isArray(donnees.factures)){
+        factures=donnees.factures;
+        sauverFactures();
+      }
+      if(donnees.emetteur&&typeof donnees.emetteur==="object"){
+        emetteur=donnees.emetteur;
+        sauverEmetteur();
+      }
+      if(Array.isArray(donnees.memoires)){
+        memories=donnees.memoires.filter(function(m){return m&&typeof m.c==="string";})
+          .map(function(m){return{c:m.c,t:new Date(m.t||Date.now())};});
+        saveMemories();
+      }
+
+      upd();
+      toast("Sauvegarde restauree","g");
+    }catch(e){
+      console.error("[AURIX] import sauvegarde complete:",e);
+      toast("Restauration impossible : fichier invalide","e");
+    }
+  };
+  lecteur.readAsText(fichier);
+}
+
+/* Rappel discret : si aucune sauvegarde n a jamais ete faite, ou si
+   la derniere date de plus de 14 jours, un avertissement s affiche
+   au chargement - visible mais non bloquant, une seule fois par
+   session pour ne pas devenir agacant. */
+function verifierRappelSauvegarde(){
+  try{
+    var derniere=localStorage.getItem("aurix_derniere_sauvegarde");
+    var joursEcoules=derniere?(Date.now()-new Date(derniere).getTime())/86400000:Infinity;
+    if(joursEcoules>14){
+      setTimeout(function(){
+        toast(derniere?"Pensez a sauvegarder vos donnees (derniere sauvegarde il y a plus de 14 jours)":"Aucune sauvegarde effectuee - vos donnees ne vivent que sur cet appareil","g");
+      },3000);
+    }
+  }catch(e){}
 }
 
 function importerMemoires(fichier){
@@ -1169,8 +1260,6 @@ function pickEngine(msg){
   var isVision=(m.indexOf("image")!==-1||m.indexOf("photo")!==-1||m.indexOf("ecran")!==-1||m.indexOf("analyse visuel")!==-1);
 
   if((isResearch||isVision)&&GEMINI_API_KEYS.length)return "gemini";
-  if(APIKEY)return "claude";
-  if(OPENAI_API_KEY)return "openai";
   if(GEMINI_API_KEYS.length)return "gemini";
   return null;
 }
@@ -1181,103 +1270,25 @@ function markEngineActive(engineKey){
      statut des moteurs internes. Conserve pour compatibilite. */
 }
 
-function callClaude(msg,cb,fallbackChain){
-  hist.push({role:"user",content:msg});
-  var sys="Tu es AURIX, assistant IA ultra-avance. Reponds en francais, concis et elegant. Pour memoriser: commence par MEMO: Pour URL: commence par URL:"+dateDuJour()+buildCtx();
-  fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":APIKEY,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-    body:JSON.stringify({model:"claude-sonnet-5",max_tokens:1024,system:sys,messages:hist.slice(-12)})
-  }).then(function(r){return r.json();})
-  .then(function(d){
-    var ans=(d.content&&d.content[0]&&d.content[0].text)||null;
-    if(!ans)throw new Error("empty");
-    hist.push({role:"assistant",content:ans});
-    markEngineActive("claude");
-    cb(ans);
-  }).catch(function(){ tryNextEngine(msg,cb,fallbackChain); });
-}
-
-/* ATTENTION : l API OpenAI (chat completions) ne renvoie pas les
-   headers CORS necessaires pour un appel direct depuis un navigateur.
-   Meme avec une cle valide, cet appel echouera silencieusement et
-   AURIX basculera automatiquement sur le moteur suivant (Gemini ou
-   mode simule). Ce n est pas un bug de ce fichier, c est une
-   limitation cote OpenAI. Non prioritaire tant qu aucune cle n est
-   renseignee. */
-function callOpenAI(msg,cb,fallbackChain){
-  var sys="Tu es AURIX, assistant IA ultra-avance. Reponds en francais, concis et elegant."+dateDuJour()+buildCtx();
-  fetch("https://api.openai.com/v1/chat/completions",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+OPENAI_API_KEY},
-    body:JSON.stringify({
-      model:"gpt-4o",
-      messages:[{role:"system",content:sys},{role:"user",content:msg}],
-      max_tokens:1024
-    })
-  }).then(function(r){return r.json();})
-  .then(function(d){
-    var ans=(d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||null;
-    if(!ans)throw new Error("empty");
-    markEngineActive("openai");
-    cb(ans);
-  }).catch(function(){ tryNextEngine(msg,cb,fallbackChain); });
-}
-
 /* ANALYSE D IMAGE - envoie une capture d ecran a Gemini.
    Gemini accepte une image en entree (inline_data), donc l analyse
    est reelle : il regarde vraiment la capture, il ne devine pas.
    Meme gestion de quota que les autres appels (rotation de cles
    puis attente du delai indique par Google). */
-/* GENERATION D IMAGE NATIVE GEMINI (nom de code "Nano Banana")
-   Contrairement a Pollinations (service tiers, qualite variable),
-   ceci utilise le meme systeme que le reste d AURIX : les memes cles
-   Gemini deja configurees, le meme point d acces, la meme rotation en
-   cas de quota depasse. Le rendu est nettement plus realiste sur les
-   sujets humains - c est ce que demandait l utilisateur.
-   Important : ceci consomme le MEME quota partage que les conversations
-   et les autres outils, pas une reserve separee. */
-/* Repli Pollinations : utilise uniquement si Gemini est indisponible.
-   Reprend la logique eprouvee (delai de securite compris) pour
-   garantir qu une image sort toujours, meme en degrade. */
-/* CASCADE DE MODELES POLLINATIONS
-   Decouverte en consultant la doc officielle : Pollinations expose
-   plusieurs modeles, et "flux" n est PAS le meilleur ni le defaut
-   (le defaut est "zimage"). Le catalogue contient nanobanana, qui
-   est le moteur Gemini Flash Image - le plus realiste sur les
-   visages humains - accessible ici SANS cle API.
-   Un rapport de bug officiel signale de plus que "flux" renvoie
-   parfois Unauthorized alors que nanobanana fonctionne.
-   On essaie donc les modeles du plus realiste au plus basique, et on
-   s arrete au premier qui repond vraiment. Sans cette cascade, un
-   modele indisponible donnait une image degradee sans explication. */
-/* REFERRER POLLINATIONS
-   Decouverte determinante : Nano Banana n est PAS accessible au tier
-   gratuit par defaut. Le tier gratuit anonyme s appelle "Seed" ;
-   nanobanana et seedream exigent le tier "Flower" (confirme par un
-   rapport officiel du depot Pollinations). Ce n etait donc jamais un
-   bug de notre cote - c est une restriction d acces.
-   VERIFICATION FAITE ENSUITE : le tier "Flower" (qui donne acces a
-   nanobanana) est un tier PAYANT, et auth.pollinations.ai n accepte
-   plus de nouvelles inscriptions. Nano Banana n est donc PAS
-   accessible gratuitement aujourd hui - inutile d esperer le
-   debloquer.
-   On conserve malgre tout ce parametre referrer : il est sans effet
-   negatif, il identifie proprement l application aupres du service,
-   et il servira automatiquement si un domaine devient un jour
-   enregistrable. */
 
-
-function callGeminiVision(imgBase64,question,onOk,onErr,retriesLeft,keysTried){
+function callGeminiVision(fichierBase64,question,onOk,onErr,retriesLeft,keysTried,mimeType,essaiServeurFait,essaiReseauFait){
   if(retriesLeft===undefined)retriesLeft=3;
   if(keysTried===undefined)keysTried=0;
+  if(mimeType===undefined)mimeType="image/jpeg";
+  if(essaiServeurFait===undefined)essaiServeurFait=false;
+  if(essaiReseauFait===undefined)essaiReseauFait=false;
   fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",{
     method:"POST",
     headers:{"Content-Type":"application/json","x-goog-api-key":getGeminiKey()},
     body:JSON.stringify({
       contents:[{parts:[
         {text:question},
-        {inline_data:{mime_type:"image/jpeg",data:imgBase64}}
+        {inline_data:{mime_type:mimeType,data:fichierBase64}}
       ]}]
     })
   }).then(function(r){
@@ -1300,13 +1311,26 @@ function callGeminiVision(imgBase64,question,onOk,onErr,retriesLeft,keysTried){
     }
     if((err.httpStatus===429||err.httpStatus===401||err.httpStatus===403)&&GEMINI_API_KEYS.length>1&&keysTried+1<GEMINI_API_KEYS.length){
       rotateGeminiKey();
-      setTimeout(function(){ callGeminiVision(imgBase64,question,onOk,onErr,retriesLeft,keysTried+1); },300);
+      setTimeout(function(){ callGeminiVision(fichierBase64,question,onOk,onErr,retriesLeft,keysTried+1,mimeType); },300);
       return;
     }
     if(err.httpStatus===429&&retriesLeft>0){
       var w=4000,m=/retry in ([0-9.]+)s/i.exec(err.message||"");
       if(m)w=Math.ceil(parseFloat(m[1])*1000)+800;
-      setTimeout(function(){ callGeminiVision(imgBase64,question,onOk,onErr,retriesLeft-1,0); },w);
+      setTimeout(function(){ callGeminiVision(fichierBase64,question,onOk,onErr,retriesLeft-1,0,mimeType); },w);
+      return;
+    }
+    /* Memes correctifs eprouves que callGemini (503/5xx transitoire et
+       vraie panne reseau) : cette fonction en etait totalement depourvue
+       jusqu ici, alors qu elle est desormais le point d entree de
+       l analyse video, la plus lourde et donc la plus exposee a ce
+       genre d incident passager. */
+    if(!essaiServeurFait&&err.httpStatus>=500&&err.httpStatus<=504){
+      setTimeout(function(){ callGeminiVision(fichierBase64,question,onOk,onErr,retriesLeft,keysTried,mimeType,true,essaiReseauFait); },1200);
+      return;
+    }
+    if(!essaiReseauFait&&err.httpStatus===undefined){
+      setTimeout(function(){ callGeminiVision(fichierBase64,question,onOk,onErr,retriesLeft,keysTried,mimeType,essaiServeurFait,true); },900);
       return;
     }
     console.error("[AURIX Vision] echec:",err.message||err);
@@ -1314,9 +1338,75 @@ function callGeminiVision(imgBase64,question,onOk,onErr,retriesLeft,keysTried){
   });
 }
 
-function callGemini(msg,cb,fallbackChain,retriesLeft,keysTried){
+/* Analyse d une video YouTube directement par URL - Gemini recupere
+   et analyse la video lui-meme (audio+images), sans que le navigateur
+   n ait besoin de telecharger le moindre octet. Limite reelle et
+   assumee : fonctionne UNIQUEMENT pour des URLs YouTube (format
+   officiel de l API), pas TikTok/Instagram - pour ces plateformes,
+   seul l upload direct du fichier (callGeminiVision ci-dessus, avec
+   mimeType video/*) fonctionne, puisqu aucune recuperation directe par
+   URL n est proposee par Gemini pour elles. */
+function callGeminiYouTube(youtubeUrl,question,onOk,onErr,retriesLeft,keysTried,essaiServeurFait,essaiReseauFait){
+  if(retriesLeft===undefined)retriesLeft=3;
+  if(keysTried===undefined)keysTried=0;
+  if(essaiServeurFait===undefined)essaiServeurFait=false;
+  if(essaiReseauFait===undefined)essaiReseauFait=false;
+  fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","x-goog-api-key":getGeminiKey()},
+    body:JSON.stringify({
+      contents:[{parts:[
+        {text:question},
+        {file_data:{file_uri:youtubeUrl}}
+      ]}]
+    })
+  }).then(function(r){
+    return r.json().then(function(d){ return {status:r.status,ok:r.ok,data:d}; });
+  }).then(function(res){
+    if(!res.ok){
+      var em=(res.data&&res.data.error&&res.data.error.message)||JSON.stringify(res.data).slice(0,200);
+      var err=new Error("HTTP "+res.status+" : "+em);
+      err.httpStatus=res.status;
+      throw err;
+    }
+    var c=res.data.candidates&&res.data.candidates[0];
+    var texte=c&&c.content&&c.content.parts&&c.content.parts[0]&&c.content.parts[0].text;
+    if(!texte)throw new Error("Reponse vide");
+    onOk(texte);
+  }).catch(function(err){
+    if(err.httpStatus===429){
+      lireLimiteDepuisErreur(err.message);
+      marquerCleEpuisee(geminiKeyIdx);
+    }
+    if((err.httpStatus===429||err.httpStatus===401||err.httpStatus===403)&&GEMINI_API_KEYS.length>1&&keysTried+1<GEMINI_API_KEYS.length){
+      rotateGeminiKey();
+      setTimeout(function(){ callGeminiYouTube(youtubeUrl,question,onOk,onErr,retriesLeft,keysTried+1); },300);
+      return;
+    }
+    if(err.httpStatus===429&&retriesLeft>0){
+      var w=4000,m=/retry in ([0-9.]+)s/i.exec(err.message||"");
+      if(m)w=Math.ceil(parseFloat(m[1])*1000)+800;
+      setTimeout(function(){ callGeminiYouTube(youtubeUrl,question,onOk,onErr,retriesLeft-1,0); },w);
+      return;
+    }
+    if(!essaiServeurFait&&err.httpStatus>=500&&err.httpStatus<=504){
+      setTimeout(function(){ callGeminiYouTube(youtubeUrl,question,onOk,onErr,retriesLeft,keysTried,true,essaiReseauFait); },1200);
+      return;
+    }
+    if(!essaiReseauFait&&err.httpStatus===undefined){
+      setTimeout(function(){ callGeminiYouTube(youtubeUrl,question,onOk,onErr,retriesLeft,keysTried,essaiServeurFait,true); },900);
+      return;
+    }
+    console.error("[AURIX YouTube] echec:",err.message||err);
+    onErr(err);
+  });
+}
+
+function callGemini(msg,cb,fallbackChain,retriesLeft,keysTried,essaiServeurFait,essaiReseauFait){
   if(retriesLeft===undefined)retriesLeft=4;
   if(keysTried===undefined)keysTried=0;
+  if(essaiServeurFait===undefined)essaiServeurFait=false;
+  if(essaiReseauFait===undefined)essaiReseauFait=false;
   var sys="Tu es AURIX, assistant IA ultra-avance. Reponds en francais, concis et elegant. Pour memoriser: commence par MEMO: Pour URL: commence par URL: "
     +"Si on te demande de rappeler quelque chose apres un delai (ex: dans 5 minutes, dans une heure, d ici 20 min), reponds UNIQUEMENT par RAPPEL: suivi du nombre ENTIER de minutes, puis un pipe |, puis un message court a annoncer plus tard. Exemple exact : RAPPEL: 5|Appeler votre client. Convertis toujours le delai en minutes entieres (une heure = 60, une demi-heure = 30)."
     +dateDuJour()+buildCtx();
@@ -1371,6 +1461,40 @@ function callGemini(msg,cb,fallbackChain,retriesLeft,keysTried){
       },waitMs);
       return;
     }
+    /* BUG CORRIGE (signale a plusieurs reprises, "code 503" tres
+       frequent) : un 5xx (500/502/503/504) est une panne TRANSITOIRE
+       cote serveur Google, sans aucun rapport avec le quota ou la cle
+       utilisee - changer de cle (comme pour 429) n aurait aucun sens,
+       puisque TOUTES les cles interrogent le meme service en panne
+       momentanee. Avant ce correctif, ce cas ne matchait AUCUNE des
+       conditions ci-dessus et tombait direct en echec final, sans
+       jamais reessayer une seule fois - alors qu un court reessai
+       suffit tres souvent a recuperer ce genre de surcharge passagere
+       (meme logique deja appliquee a la voix StreamElements). Un seul
+       reessai (pas une boucle) : si Google a une vraie panne plus
+       longue, insister ne changerait rien de plus. */
+    if(!essaiServeurFait&&err.httpStatus>=500&&err.httpStatus<=504){
+      setTimeout(function(){
+        callGemini(msg,cb,fallbackChain,retriesLeft,keysTried,true,essaiReseauFait);
+      },1200);
+      return;
+    }
+    /* BUG REEL DISTINCT DU PRECEDENT : une vraie coupure reseau (DNS,
+       connexion refusee, brève absence de reseau) fait echouer fetch()
+       lui-meme, AVANT toute reponse HTTP - err.httpStatus n est alors
+       JAMAIS defini (il n est fixe que dans le .then, une fois une
+       reponse deja recue). Ce cas ne matchait donc AUCUNE des
+       conditions ci-dessus (qui comparent toutes httpStatus a des
+       nombres) et tombait direct en echec, sans reessayer - alors
+       qu une coupure reseau breve est justement le cas ou un simple
+       reessai a le plus de chances de reussir (meme logique deja
+       appliquee avec succes au module voix pour ce type d erreur). */
+    if(!essaiReseauFait&&err.httpStatus===undefined){
+      setTimeout(function(){
+        callGemini(msg,cb,fallbackChain,retriesLeft,keysTried,essaiServeurFait,true);
+      },900);
+      return;
+    }
     console.error("[AURIX Gemini] echec:",err.message||err);
     toast("Gemini indisponible : "+(err.message||"erreur inconnue").slice(0,60),"e");
     tryNextEngine(msg,cb,fallbackChain,err);
@@ -1387,8 +1511,6 @@ function tryNextEngine(msg,cb,fallbackChain,err){
 }
 
 function runEngine(engineKey,msg,cb,fallbackChain,err){
-  if(engineKey==="claude"&&APIKEY){ callClaude(msg,cb,fallbackChain); return; }
-  if(engineKey==="openai"&&OPENAI_API_KEY){ callOpenAI(msg,cb,fallbackChain); return; }
   if(engineKey==="gemini"&&GEMINI_API_KEYS.length){ callGemini(msg,cb,fallbackChain); return; }
   tryNextEngine(msg,cb,fallbackChain,err);
 }
@@ -1471,8 +1593,7 @@ function runQueuedJob(job,done){
     setTimeout(function(){ job.cb(simulate(job.msg)); done(); },500+Math.random()*600);
     return;
   }
-  var chain=["claude","openai","gemini"].filter(function(k){ return k!==primary; });
-  runEngine(primary,job.msg,function(ans){ job.cb(ans); done(); },chain);
+  runEngine(primary,job.msg,function(ans){ job.cb(ans); done(); },[]);
 }
 
 /* PROTECTION DOUBLE-CLIC — point unique pour les 9 boutons qui
@@ -1503,19 +1624,6 @@ function callAI(msg,cb){
   processAiQueue();
 }
 
-/* Voix GRATUITE et IDENTIQUE pour tous les clients - Puter.js (SDK
-   charge en <head>, aucune cle, aucune inscription). Base sur les
-   voix Amazon Polly, appelees directement cote navigateur - concu
-   specifiquement pour cet usage, contrairement a StreamElements qui
-   est une API non officielle detournee de son usage prevu (et qui a
-   fini par se bloquer).
-   "Remi" (moteur neural) remplace "Mathieu" (moteur standard,
-   plus mecanique) : Remi est une voix Polly plus recente,
-   specifiquement lancee pour un rendu conversationnel naturel -
-   construite sur les caracteristiques vocales de Matthew (voix US
-   tres appreciee pour son naturel), transposees au francais.
-   Repli sur StreamElements puis voix navigateur en tout dernier
-   recours si Puter est indisponible. */
 /* Affiche un bouton "Appuyer pour ecouter" quand la lecture automatique
    est bloquee par le navigateur (frequent sur Safari iOS, qui refuse
    parfois de lancer un son sans un geste direct et immediat de
@@ -1697,6 +1805,59 @@ var AURIX_VOIX_PARAMS=(function(){
 })();
 function sauverVoixParams(){
   try{ localStorage.setItem("aurix_voix_params",JSON.stringify(AURIX_VOIX_PARAMS)); }catch(e){}
+}
+
+/* HISTORIQUE DE CONVERSATION
+   BUG CORRIGE (signale) : "obligé de quitter le SaaS pour relancer
+   une conversation" - en verifiant callGemini, chaque question etait
+   en realite deja envoyee de facon totalement INDEPENDANTE, sans
+   aucun historique des echanges precedents (seules les 5 dernieres
+   MEMO: explicites etaient incluses). AURIX ne pouvait donc jamais
+   se souvenir de ce qui venait d etre dit dans la MEME conversation -
+   l oppose de ce qui etait demande ("comme ChatGPT, Gemini").
+   Corrige : un vrai historique des echanges recents est desormais
+   inclus dans chaque question, ET un bouton explicite permet de
+   repartir a zero sans jamais recharger la page. Limite a 6 echanges
+   (12 lignes) : assez pour une vraie continuite, sans faire gonfler
+   indefiniment chaque requete au fil d une tres longue session. */
+var historiqueConversation=[];
+var MAX_ECHANGES_HISTORIQUE=6;
+
+function construireHistoriqueContexte(){
+  if(!historiqueConversation.length)return"";
+  var recents=historiqueConversation.slice(-MAX_ECHANGES_HISTORIQUE);
+  var lignes=recents.map(function(e){
+    return "Utilisateur: "+e.u+"\nAURIX: "+e.a;
+  }).join("\n");
+  return "Echanges precedents de cette conversation, pour le contexte :\n"+lignes+"\n\n";
+}
+
+function enregistrerEchange(question,reponse){
+  historiqueConversation.push({u:question,a:reponse});
+  if(historiqueConversation.length>MAX_ECHANGES_HISTORIQUE*2){
+    historiqueConversation=historiqueConversation.slice(-MAX_ECHANGES_HISTORIQUE);
+  }
+}
+
+/* Point d entree unique pour une question conversationnelle normale
+   (pas un outil specifique) : inclut l historique recent AVANT la
+   question actuelle, et enregistre l echange une fois la reponse
+   recue - AVANT d appeler le veritable callback, pour que ce soit
+   fait quoi qu il arrive ensuite dans handleResp. */
+function poserQuestionConversationnelle(text,cb){
+  var messageAvecContexte=construireHistoriqueContexte()+text;
+  callAI(messageAvecContexte,function(reponse){
+    enregistrerEchange(text,cleanText(reponse));
+    cb(reponse);
+  });
+}
+
+function demarrerNouvelleConversation(){
+  historiqueConversation=[];
+  setR("");
+  setT("");
+  voixVider();
+  toast("Nouvelle conversation demarree","g");
 }
 
 var voixFile=[],voixOccupee=false;
@@ -2875,7 +3036,7 @@ function analyserComptaIA(mois){
    reunis - inutilisable en pratique.
    On utilise donc UN SEUL appel de planification qui retourne le plan
    complet, puis on execute les outils localement. Les outils gratuits
-   (ouverture d app, memoire, calendrier, images via Pollinations) ne
+   (ouverture d app, memoire, rappel, facture, reponse directe) ne
    consomment RIEN. Seules les etapes necessitant vraiment une
    redaction IA coutent une requete supplementaire.
 
@@ -3337,17 +3498,42 @@ function demarrerNouvelleEcoute(){
      recog.stop() (contrairement a abort()) termine PROPREMENT la
      session : il declenche le meme onend normal, avec tout ce qui a
      deja ete capture conserve - exactement ce qu il faut pour que le
-     texte deja visible a l ecran soit enfin envoye. */
-  var dureeMaxEcoute=setTimeout(function(){
-    console.warn("[AURIX Micro] duree maximale atteinte, arret propre force");
+     texte deja visible a l ecran soit enfin envoye.
+
+     BUG CORRIGE (signale) : la 1ere version de ce minuteur etait FIXE
+     a 8s depuis le DEBUT de la session, quelle que soit l activite -
+     un message vocal un peu long se faisait donc couper en plein
+     milieu, meme si la personne parlait encore activement. Corrige :
+     le minuteur repart desormais a zero a CHAQUE nouveau mot capte
+     (silence prolonge = probablement fini de parler, pas juste
+     "session longue"). Un filet de securite absolu (2 min) est garde
+     en plus, pour le cas improbable ou des resultats continueraient
+     d arriver indefiniment sans jamais que la session ne se termine
+     naturellement. */
+  var SILENCE_MAX=12000;      // aucun nouveau mot depuis 12s -> a fini de parler
+  var DUREE_ABSOLUE_MAX=120000; // filet de securite ultime, quoi qu il arrive
+  var dureeMaxEcoute=setTimeout(forcerArretEcoute,SILENCE_MAX);
+  var debutEcoute=Date.now();
+  function forcerArretEcoute(){
+    console.warn("[AURIX Micro] silence prolonge ou duree maximale atteinte, arret propre force");
     try{ recog.stop(); }catch(e){}
-  },8000);
+  }
   function nettoyerDureeMax(){ clearTimeout(dureeMaxEcoute); }
 
   recog.onresult=function(e){
     /* Une vraie capture qui arrive prouve que le materiel audio est
        redevenu disponible : le budget de reessai repart a neuf. */
     essaisAudioCapture=0;
+
+    /* Un nouveau mot vient d etre capte : la personne parle encore
+       activement, on repousse le minuteur de silence. Le filet de
+       securite absolu, lui, ne bouge jamais - il protege contre une
+       session qui ne se terminerait jamais, meme avec de l activite
+       continue (cas extreme, mais on se protege quand meme). */
+    clearTimeout(dureeMaxEcoute);
+    var tempsRestantAvantAbsolu=DUREE_ABSOLUE_MAX-(Date.now()-debutEcoute);
+    dureeMaxEcoute=setTimeout(forcerArretEcoute,Math.max(0,Math.min(SILENCE_MAX,tempsRestantAvantAbsolu)));
+
     var interim="",fin="";
     for(var i=e.resultIndex;i<e.results.length;i++){
       var t=e.results[i][0].transcript;
@@ -3382,7 +3568,7 @@ function demarrerNouvelleEcoute(){
     compagnonNoter("Utilisateur",text);
     setUI("processing");setR("");
     narrer(narrationAccuse(text));
-    callAI(text,handleResp);
+    poserQuestionConversationnelle(text,handleResp);
   };
   recog.onerror=function(e){
     nettoyerDureeMax();
@@ -3861,7 +4047,7 @@ function submitTextQuery(){
 
   compagnonNoter("Utilisateur",text);
   setUI("processing");setR("");
-  callAI(text,handleResp);
+  poserQuestionConversationnelle(text,handleResp);
 }
 tsBtn.addEventListener("click",submitTextQuery);
 tsInput.addEventListener("keydown",function(e){
@@ -3930,6 +4116,14 @@ function openModal(type){
   mtbs.innerHTML="";
   if(type==="memory"){
     mdt.textContent="Memoire AURIX";
+    var barreSauvegarde="<div style=\"padding:10px;background:var(--pnl);border:1px solid var(--bd);border-radius:8px;margin-bottom:14px\">"
+      +"<div style=\"font-size:12px;color:var(--tx);font-weight:600;margin-bottom:4px\">Sauvegarde complete</div>"
+      +"<div style=\"font-size:11px;color:var(--mu);margin-bottom:8px\">Vos donnees (comptabilite, factures, memoire) vivent uniquement sur cet appareil. Sauvegardez regulierement pour ne rien perdre en cas de changement de telephone.</div>"
+      +"<div style=\"display:flex;gap:8px;flex-wrap:wrap\">"
+      +"<button id=\"sauvExport\" style=\"padding:6px 12px;background:var(--c);border:none;border-radius:6px;color:#040508;font-weight:700;font-size:11px;cursor:pointer\">Telecharger la sauvegarde</button>"
+      +"<button id=\"sauvImport\" style=\"padding:6px 12px;background:none;border:1px solid rgba(245,166,35,.3);border-radius:6px;color:var(--g);font-size:11px;cursor:pointer\">Restaurer une sauvegarde</button>"
+      +"<input type=\"file\" id=\"sauvImportFile\" accept=\".json\" style=\"display:none\">"
+      +"</div></div>";
     var barreOutils="<div style=\"display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap\">"
       +(memories.length?"<button id=\"mClearAll\" style=\"padding:6px 12px;background:none;border:1px solid var(--bd);border-radius:6px;color:var(--mu);font-size:11px;cursor:pointer\">Tout effacer</button>":"")
       +"<button id=\"mExport\" style=\"padding:6px 12px;background:none;border:1px solid rgba(0,200,255,.3);border-radius:6px;color:var(--c);font-size:11px;cursor:pointer\">Exporter</button>"
@@ -3938,9 +4132,9 @@ function openModal(type){
       +"</div>";
 
     if(!memories.length){
-      mbd.innerHTML=barreOutils+"<div class=\"re2\">Aucune memoire. Dites Memorise pour commencer, ou importez une sauvegarde.</div>";
+      mbd.innerHTML=barreSauvegarde+barreOutils+"<div class=\"re2\">Aucune memoire. Dites Memorise pour commencer, ou importez une sauvegarde.</div>";
     } else {
-      mbd.innerHTML=barreOutils
+      mbd.innerHTML=barreSauvegarde+barreOutils
         +memories.map(function(m,i){return{m:m,i:i};}).slice().reverse().map(function(o){
           return"<div class=\"mi\" style=\"display:flex;align-items:flex-start;justify-content:space-between;gap:8px\">"
             +"<div style=\"flex:1\">"+echapperHTML(o.m.c)+"<div class=\"mt\">"+echapperHTML(o.m.t.toLocaleString("fr-FR"))+"</div></div>"
@@ -3966,6 +4160,16 @@ function openModal(type){
     document.getElementById("mImportFile").addEventListener("change",function(e){
       var f=e.target.files&&e.target.files[0];
       if(f)importerMemoires(f);
+      e.target.value="";
+    });
+
+    document.getElementById("sauvExport").addEventListener("click",exporterSauvegardeComplete);
+    document.getElementById("sauvImport").addEventListener("click",function(){
+      document.getElementById("sauvImportFile").click();
+    });
+    document.getElementById("sauvImportFile").addEventListener("change",function(e){
+      var f=e.target.files&&e.target.files[0];
+      if(f)importerSauvegardeComplete(f);
       e.target.value="";
     });
   } else if(type==="ai"){
@@ -4017,6 +4221,171 @@ function openModal(type){
       }catch(e){
         toast("Erreur : "+e.message,"e");
         console.error("[AURIX Content] erreur generation:",e);
+      }
+    });
+  } else if(type==="analyseContenu"){
+    mdt.textContent="Analyseur de Contenu";
+    mbd.innerHTML="<p style=\"font-size:12px;color:var(--mu);margin-bottom:12px\">Collez un texte deja redige et/ou fournissez un media (capture, video, lien YouTube). AURIX identifie ce qui freine ou fait la viralite, et donne des corrections concretes.</p>"
+      +"<div style=\"margin-bottom:10px\">"
+      +"<label style=\"font-size:11px;color:var(--mu);display:block;margin-bottom:4px\">Plateforme</label>"
+      +"<select id=\"acPlatform\" style=\"width:100%;padding:8px;background:var(--pnl);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px\">"
+      +"<option value=\"TikTok\">TikTok</option><option value=\"Instagram\">Instagram</option><option value=\"LinkedIn\">LinkedIn</option>"
+      +"</select></div>"
+      +"<div style=\"margin-bottom:10px\">"
+      +"<label style=\"font-size:11px;color:var(--mu);display:block;margin-bottom:4px\">Texte du contenu (optionnel)</label>"
+      +"<textarea id=\"acTexte\" rows=\"4\" placeholder=\"Collez ici votre legende, script ou post deja redige...\" style=\"width:100%;padding:8px;background:var(--pnl);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;resize:vertical;font-family:inherit\"></textarea></div>"
+      +"<div style=\"margin-bottom:10px\">"
+      +"<label style=\"font-size:11px;color:var(--mu);display:block;margin-bottom:4px\">Media a analyser (optionnel si texte fourni)</label>"
+      +"<select id=\"acMediaType\" style=\"width:100%;padding:8px;background:var(--pnl);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;margin-bottom:8px\">"
+      +"<option value=\"aucun\">Aucun (texte seul)</option>"
+      +"<option value=\"image\">Capture d ecran</option>"
+      +"<option value=\"video\">Fichier video</option>"
+      +"<option value=\"youtube\">Lien YouTube</option>"
+      +"</select>"
+      +"<div id=\"acMediaZoneImage\" style=\"display:none\"><input type=\"file\" id=\"acImage\" accept=\"image/*\" style=\"width:100%;font-size:12px;color:var(--mu)\"><div id=\"acApercu\" style=\"margin-top:8px\"></div></div>"
+      +"<div id=\"acMediaZoneVideo\" style=\"display:none\"><input type=\"file\" id=\"acVideo\" accept=\"video/*\" style=\"width:100%;font-size:12px;color:var(--mu)\"><div style=\"font-size:10px;color:var(--mu);margin-top:4px\">Videos courtes uniquement (limite ~70 Mo)</div><div id=\"acVideoInfo\" style=\"margin-top:6px;font-size:12px;color:var(--c)\"></div></div>"
+      +"<div id=\"acMediaZoneYoutube\" style=\"display:none\"><input type=\"text\" id=\"acYoutube\" placeholder=\"https://www.youtube.com/watch?v=...\" style=\"width:100%;padding:8px;background:var(--pnl);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px\"><div style=\"font-size:10px;color:var(--mu);margin-top:4px\">YouTube uniquement (pas TikTok/Instagram)</div></div>"
+      +"</div>"
+      +"<button id=\"acGen\" style=\"width:100%;padding:10px;background:var(--c);border:none;border-radius:6px;color:#040508;font-weight:700;font-size:13px;cursor:pointer\">Analyser le potentiel viral</button>"
+      +"<div id=\"acOut\" style=\"margin-top:14px;font-size:13px;line-height:1.6;white-space:pre-wrap\"></div>";
+
+    var acImageB64=null,acVideoB64=null,acVideoMime=null;
+    var LIMITE_VIDEO_OCTETS=70*1024*1024; // marge de securite : la limite Gemini (100 Mo) s applique APRES encodage base64 (+33%)
+
+    var acMediaType=document.getElementById("acMediaType");
+    var zoneImage=document.getElementById("acMediaZoneImage");
+    var zoneVideo=document.getElementById("acMediaZoneVideo");
+    var zoneYoutube=document.getElementById("acMediaZoneYoutube");
+    acMediaType.addEventListener("change",function(){
+      zoneImage.style.display=acMediaType.value==="image"?"block":"none";
+      zoneVideo.style.display=acMediaType.value==="video"?"block":"none";
+      zoneYoutube.style.display=acMediaType.value==="youtube"?"block":"none";
+    });
+
+    document.getElementById("acImage").addEventListener("change",function(e){
+      var f=e.target.files&&e.target.files[0];
+      var apercu=document.getElementById("acApercu");
+      if(!f){ acImageB64=null; apercu.innerHTML=""; return; }
+      if(!f.type||f.type.indexOf("image/")!==0){
+        toast("Fichier non reconnu comme image","e");
+        e.target.value=""; acImageB64=null; apercu.innerHTML="";
+        return;
+      }
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        var dataUrl=ev.target.result;
+        acImageB64=dataUrl.split(",")[1];
+        apercu.innerHTML="<img src=\""+dataUrl+"\" style=\"max-width:100%;max-height:140px;border-radius:6px;border:1px solid var(--bd)\">";
+      };
+      reader.onerror=function(){
+        toast("Impossible de lire cette image","e");
+        acImageB64=null; apercu.innerHTML="";
+      };
+      reader.readAsDataURL(f);
+    });
+
+    document.getElementById("acVideo").addEventListener("change",function(e){
+      var f=e.target.files&&e.target.files[0];
+      var info=document.getElementById("acVideoInfo");
+      if(!f){ acVideoB64=null; acVideoMime=null; info.textContent=""; return; }
+      if(!f.type||f.type.indexOf("video/")!==0){
+        toast("Fichier non reconnu comme video","e");
+        e.target.value=""; acVideoB64=null; acVideoMime=null; info.textContent="";
+        return;
+      }
+      if(f.size>LIMITE_VIDEO_OCTETS){
+        toast("Video trop lourde ("+(f.size/1024/1024).toFixed(0)+" Mo, limite ~70 Mo)","e");
+        e.target.value=""; acVideoB64=null; acVideoMime=null; info.textContent="";
+        return;
+      }
+      info.textContent="Lecture de la video ("+(f.size/1024/1024).toFixed(1)+" Mo)...";
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        var dataUrl=ev.target.result;
+        acVideoB64=dataUrl.split(",")[1];
+        acVideoMime=f.type;
+        info.textContent="Video prete a analyser ("+(f.size/1024/1024).toFixed(1)+" Mo)";
+      };
+      reader.onerror=function(){
+        toast("Impossible de lire cette video","e");
+        acVideoB64=null; acVideoMime=null; info.textContent="";
+      };
+      reader.readAsDataURL(f);
+    });
+
+    document.getElementById("acGen").addEventListener("click",function(){
+      try{
+        var platform=document.getElementById("acPlatform").value;
+        var texte=document.getElementById("acTexte").value.trim();
+        var mediaChoisi=acMediaType.value;
+        var youtubeUrl=document.getElementById("acYoutube").value.trim();
+        var out=document.getElementById("acOut");
+
+        if(mediaChoisi==="youtube"&&youtubeUrl&&!/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(youtubeUrl)){
+          toast("Ce lien ne ressemble pas a une URL YouTube","e");
+          out.textContent="Le lien fourni ne semble pas etre une URL YouTube valide (youtube.com ou youtu.be).";
+          return;
+        }
+
+        var aUnMedia=(mediaChoisi==="image"&&acImageB64)||(mediaChoisi==="video"&&acVideoB64)||(mediaChoisi==="youtube"&&youtubeUrl);
+        if(!texte&&!aUnMedia){
+          toast("Fournissez un texte ou un media","e");
+          out.textContent="Collez un texte ou fournissez un media avant d analyser.";
+          return;
+        }
+        out.textContent="Analyse en cours...";
+
+        /* Consigne d analyse de viralite : structuree autour de ce qui
+           determine reellement la performance d un post (accroche,
+           rythme, ressort emotionnel, appel a l action, adequation a
+           la plateforme), jamais de conseils generiques deja connus
+           de tous - meme exigence que les autres outils de contenu. */
+        var consigne="Tu es strategiste en croissance sur "+platform+", specialise dans l analyse de contenu existant pour en maximiser le potentiel viral. "
+          +"Analyse le contenu fourni et reponds EXACTEMENT selon cette structure, en francais :\n"
+          +"1) ACCROCHE (3 premieres secondes/lignes) : note sur 10 et pourquoi\n"
+          +"2) CE QUI RETIENT L ATTENTION : ce qui fonctionne deja, concretement\n"
+          +"3) CE QUI FREINE LA VIRALITE : 2 a 4 points precis (rythme trop lent, absence de tension, CTA faible, format inadapte a "+platform+", etc.)\n"
+          +"4) CORRECTIONS CONCRETES : pour chaque point freinant identifie, une reformulation ou action precise a appliquer - jamais un conseil vague type \"soyez plus authentique\"\n"
+          +"5) NOTE GLOBALE DE POTENTIEL VIRAL sur 10\n"
+          +"Sois direct, concis, sans blabla d introduction.";
+
+        function suffixeTexte(mention){
+          return texte?("\n\nTexte associe a ce post : "+texte):("\n\nAucun texte fourni : analyse uniquement "+mention+".");
+        }
+
+        if(mediaChoisi==="video"&&acVideoB64){
+          reqs++;upd();incrementerQuotaPartage();
+          callGeminiVision(acVideoB64,consigne+suffixeTexte("la video (image et son)"),function(ans){
+            afficherResultatOutil(out,cleanText(ans),"Analyseur de Contenu");
+          },function(err){
+            out.textContent="Erreur : "+err.message;
+            toast("Analyse impossible : "+err.message.slice(0,60),"e");
+          },undefined,undefined,acVideoMime);
+        } else if(mediaChoisi==="youtube"&&youtubeUrl){
+          reqs++;upd();incrementerQuotaPartage();
+          callGeminiYouTube(youtubeUrl,consigne+suffixeTexte("la video YouTube (image et son)"),function(ans){
+            afficherResultatOutil(out,cleanText(ans),"Analyseur de Contenu");
+          },function(err){
+            out.textContent="Erreur : "+err.message;
+            toast("Analyse impossible : "+err.message.slice(0,60),"e");
+          });
+        } else if(mediaChoisi==="image"&&acImageB64){
+          reqs++;upd();incrementerQuotaPartage();
+          callGeminiVision(acImageB64,consigne+suffixeTexte("ce que montre l image (visuel, mise en page, texte incruste si present)"),function(ans){
+            afficherResultatOutil(out,cleanText(ans),"Analyseur de Contenu");
+          },function(err){
+            out.textContent="Erreur : "+err.message;
+            toast("Analyse impossible : "+err.message.slice(0,60),"e");
+          });
+        } else {
+          var promptTexte=consigne+"\n\nContenu a analyser :\n"+texte;
+          callAI(promptTexte,function(ans){
+            afficherResultatOutil(out,cleanText(ans),"Analyseur de Contenu");
+          });
+        }
+      }catch(e){
+        toast("Erreur : "+e.message,"e");
+        console.error("[AURIX AnalyseContenu] erreur:",e);
       }
     });
   } else if(type==="calendar"){
@@ -4304,7 +4673,11 @@ function openModal(type){
     var abonnements=detecterAbonnements();
 
     var html="<p style=\"font-size:12px;color:var(--mu);margin-bottom:10px\">"
-      +"Tous les calculs sont faits localement et sont exacts. Vos transactions restent dans ce navigateur : elles ne sont jamais envoyees a une IA.</p>";
+      +"Tous les calculs sont faits localement et sont exacts. Vos transactions restent dans ce navigateur : elles ne sont jamais envoyees a une IA.</p>"
+      +"<div style=\"display:flex;flex-direction:column;gap:6px;margin-bottom:14px;font-size:13px\">"
+      +"<a href=\"https://www.indy.fr/\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--c);text-decoration:underline;cursor:pointer\">Indy</a>"
+      +"<a href=\"https://youtu.be/ZbZumgDl2Uw?is=6UydRczXZpGsRgeM\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--c);text-decoration:underline;cursor:pointer\">Tutoriel</a>"
+      +"</div>";
 
     /* --- NAVIGATION ENTRE LES MOIS --- */
     var estMoisCourant=moisCourant===new Date().toISOString().slice(0,7);
@@ -5127,6 +5500,7 @@ document.getElementById("btnAI").addEventListener("click",function(){openModal("
 document.getElementById("btnContent").addEventListener("click",function(){openModal("content");});
 document.getElementById("btnCalendar").addEventListener("click",function(){openModal("calendar");});
 document.getElementById("btnBio").addEventListener("click",function(){openModal("bio");});
+document.getElementById("btnAnalyseContenu").addEventListener("click",function(){openModal("analyseContenu");});
 document.getElementById("btnTest").addEventListener("click",function(){openModal("test");});
 document.getElementById("btnLongScript").addEventListener("click",function(){openModal("longscript");});
 document.getElementById("btnProfile").addEventListener("click",function(){openModal("profile");});
@@ -5393,9 +5767,15 @@ function compagnonDesactiver(){
     if(!AURIX_VOIX_PARAMS.active){ toast("Reactivez la voix pour rejouer","e"); return; }
     speakText(dernierTexteParle);
   });
+
+  var bNouvelleConv=document.getElementById("btnNouvelleConv");
+  if(bNouvelleConv){
+    bNouvelleConv.addEventListener("click",demarrerNouvelleConversation);
+  }
 })();
 
 setUI("idle");upd();
+verifierRappelSauvegarde();
 chargerQuotaPartagePeek();
 /* Actualisation reguliere : sans elle, un appareil qui n envoie plus
    de requetes resterait fige sur sa derniere lecture, pendant que
