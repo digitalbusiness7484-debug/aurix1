@@ -381,6 +381,15 @@ footer{grid-area:ft;display:flex;align-items:center;justify-content:center;gap:2
   .ra,.tbox{max-width:100%}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important}}
+/* BUG CORRIGE (signale : "les elements s affichent en blanc", present
+   dans plusieurs fenetres, pas seulement une) : aucune regle ne
+   ciblait les listes deroulantes elles-memes - chaque <select> avait
+   bien un style sombre en ligne pour son etat FERME, mais la liste
+   d options qui s ouvre au clic restait en blanc natif du navigateur,
+   par defaut, faute de regle CSS explicite. Applique globalement,
+   sans devoir modifier chacun des 11 select du fichier un par un. */
+select{background:var(--pnl);color:var(--tx)}
+select option{background:var(--pnl);color:var(--tx)}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -1857,6 +1866,7 @@ function demarrerNouvelleConversation(){
   setR("");
   setT("");
   voixVider();
+  setUI("idle");
   toast("Nouvelle conversation demarree","g");
 }
 
@@ -2198,6 +2208,18 @@ function proposerAnnulationRappel(id,message){
 }
 
 function handleResp(ans){
+  /* BUG CORRIGE (signale : "reste dans analyse en cours, ne se passe
+     rien" sur une question generale, ET donne l impression que
+     d autres outils sont bloques aussi ensuite - l indicateur "ANALYSE
+     EN COURS..." est un element GLOBAL partage par toute l interface,
+     pas propre a une fenetre). handleResp ne remettait jamais l etat
+     visuel a idle apres une reponse : le texte s affichait bien via
+     setR() plus bas, mais le libelle du bouton micro restait fige sur
+     "ANALYSE EN COURS..." indefiniment, meme apres un succes complet -
+     et comme cet element est partage, il donnait l impression fausse
+     que TOUT AURIX etait bloque, meme en ouvrant un tout autre outil
+     ensuite. Remis en tout premier, avant tout autre traitement. */
+  setUI("idle");
   var url=extractUrl(ans);
   var txt=cleanText(ans);
   var baliseMemo=extraireBaliseDebut(ans,"memo");
@@ -5126,7 +5148,7 @@ function openModal(type){
       +"</div>"
       +"<textarea id=\"autoDemande\" rows=\"3\" placeholder=\"Ex: Trouve-moi une idee de Reel sur le business et evalue son potentiel\" style=\"width:100%;padding:8px;background:var(--pnl);border:1px solid var(--bd);border-radius:6px;color:var(--tx);font-size:13px;resize:vertical;font-family:inherit\"></textarea>"
       +"<button id=\"autoGo\" style=\"width:100%;margin-top:10px;padding:10px;background:var(--c);border:none;border-radius:6px;color:#040508;font-weight:700;font-size:13px;cursor:pointer\">Lancer la mission</button>"
-      +"<div style=\"font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.12em;color:var(--c);margin:14px 0 6px\">OUTILS DISPONIBLES ("+OUTILS_AURIX.length+")</div>"
+      +"<div style=\"font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.12em;color:var(--c);margin:14px 0 6px\">OUTILS AUTOMATISABLES ("+OUTILS_AURIX.length+")</div>"
       +"<div style=\"display:flex;flex-wrap:wrap;gap:5px\">"
       +OUTILS_AURIX.map(function(o){
         var couleur=outilEstSensible(o)?"rgba(245,166,35,.3)":"rgba(0,200,255,.22)";
