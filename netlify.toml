@@ -1,3 +1,6 @@
+# Configuration Netlify pour AURIX
+# Indique a Netlify ou se trouvent les fonctions serverless.
+
 [build]
   functions = "netlify/functions"
   publish = "."
@@ -9,12 +12,3 @@
   from = "/"
   to = "/AURIX.html"
   status = 200
-# Configuration Netlify pour AURIX
-# Indique a Netlify ou se trouvent les fonctions serverless.
-
-[build]
-  functions = "netlify/functions"
-  publish = "."
-
-[functions]
-  node_bundler = "esbuild"
